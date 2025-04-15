@@ -3,7 +3,7 @@ let segments = [
   { label: "Try Again", value: 0 },
   { label: "50 Coins", value: 50 },
   { label: "100 Coins", value: 100 },
-  { label: "1 Spin Extra", value: "spin" },
+  { label: "1 Extra Spin", value: "spin" },
   { label: "500 Coins", value: 500 }
 ];
 
@@ -29,18 +29,19 @@ function drawWheel() {
     ctx.beginPath();
     ctx.moveTo(250, 250);
     ctx.arc(250, 250, 200, angle, angle + anglePerSegment);
-    ctx.fillStyle = i % 2 === 0 ? "#FFB347" : "#87CEEB";
+    ctx.fillStyle = i % 2 === 0 ? "#FFD700" : "#87CEEB";
     ctx.fill();
     ctx.stroke();
     ctx.fillStyle = "#000";
     ctx.font = "16px Arial";
     ctx.fillText(
       segments[i].label,
-      250 + 150 * Math.cos(angle + anglePerSegment / 2),
-      250 + 150 * Math.sin(angle + anglePerSegment / 2)
+      250 + 120 * Math.cos(angle + anglePerSegment / 2),
+      250 + 120 * Math.sin(angle + anglePerSegment / 2)
     );
   }
 }
+drawWheel();
 
 function spinWheel() {
   if (spinning || spinsLeft <= 0) return;
@@ -60,7 +61,6 @@ function spinWheel() {
     } else if (result.value === "spin") {
       spinsLeft++;
     }
-
     spinsLeft--;
     updateDisplays();
     spinning = false;
@@ -97,7 +97,6 @@ spinBtn.addEventListener("click", () => {
   playSound();
   spinWheel();
 });
-
 document.getElementById("setUsernameBtn").addEventListener("click", saveUsername);
 document.getElementById("darkModeBtn").addEventListener("click", toggleDarkMode);
 document.getElementById("leaderboardBtn").addEventListener("click", addToLeaderboard);
