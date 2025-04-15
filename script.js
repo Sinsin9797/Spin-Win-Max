@@ -1,44 +1,58 @@
-// script.js (Spin Wheel Final Version with 50 Features)
+const canvas = document.getElementById("wheelCanvas");
+const ctx = canvas.getContext("2d");
+const coinsEl = document.getElementById("coins");
+const rewardBox = document.getElementById("reward");
 
-const segments = [ { label: "10 Coins", value: 10, icon: "coin.png" }, { label: "Try Again", value: 0, icon: "retry.png" }, { label: "5 Coins", value: 5, icon: "coin.png" }, { label: "20 Coins", value: 20, icon: "coin.png" }, { label: "Spin Again", value: 0, icon: "spin.png" }, { label: "50 Coins", value: 50, icon: "coin.png" } ];
+let coins = 0;
+let isMuted = false;
+let segments = ["10 Coins", "20 Coins", "Try Again", "50 Coins", "100 Coins"];
+let colors = ["#f44336", "#e91e63", "#9c27b0", "#2196f3", "#4caf50"];
 
-let username = localStorage.getItem("username") || prompt("Enter your name:"); let coins = parseInt(localStorage.getItem("coins")) || 0; let spinsToday = parseInt(localStorage.getItem("spinsToday")) || 0; let lastSpinDate = localStorage.getItem("lastSpinDate") || new Date().toDateString();
+function drawWheel() {
+  let angle = (2 * Math.PI) / segments.length;
+  for (let i = 0; i < segments.length; i++) {
+    ctx.beginPath();
+    ctx.moveTo(150, 150);
+    ctx.fillStyle = colors[i];
+    ctx.arc(150, 150, 150, i * angle, (i + 1) * angle);
+    ctx.lineTo(150, 150);
+    ctx.fill();
 
-if (lastSpinDate !== new Date().toDateString()) { spinsToday = 0; localStorage.setItem("lastSpinDate", new Date().toDateString()); }
+    ctx.save();
+    ctx.translate(150, 150);
+    ctx.rotate(i * angle + angle / 2);
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 14px Arial";
+    ctx.textAlign = "right";
+    ctx.fillText(segments[i], 140, 10);
+    ctx.restore();
+  }
+}
+drawWheel();
 
-localStorage.setItem("username", username);
+function spin() {
+  let winIndex = Math.floor(Math.random() * segments.length);
+  let reward = segments[winIndex];
 
-const spinLimit = 5; const telegramBotToken = "7660325670:AAGjyxqcfafCpx-BiYNIRlPG4u5gd7NDxsI"; const telegramChatId = "5054074724"; const wheelCanvas = document.getElementById("wheelCanvas"); const ctx = wheelCanvas.getContext("2d");
+  if (reward.includes("Coins")) {
+    let num = parseInt(reward.split(" ")[0]);
+    coins += num;
+    coinsEl.textContent = coins;
+    rewardBox.textContent = `You won ${num} coins!`;
+  } else {
+    rewardBox.textContent = "Try Again!";
+  }
 
-let currentAngle = 0;
+  if (!isMuted) {
+    let audio = new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
+    audio.play();
+  }
+}
 
-function drawWheel() { const centerX = wheelCanvas.width / 2; const centerY = wheelCanvas.height / 2; const radius = 120; const angle = (2 * Math.PI) / segments.length;
+function toggleMute() {
+  isMuted = !isMuted;
+}
 
-for (let i = 0; i < segments.length; i++) { const startAngle = i * angle; const endAngle = startAngle + angle; ctx.beginPath(); ctx.moveTo(centerX, centerY); ctx.arc(centerX, centerY, radius, startAngle, endAngle); ctx.fillStyle = i % 2 === 0 ? "#f9a825" : "#fbc02d"; ctx.fill(); ctx.save(); ctx.translate(centerX, centerY); ctx.rotate(startAngle + angle / 2); ctx.textAlign = "right"; ctx.fillStyle = "#333"; ctx.font = "bold 12px Arial"; ctx.fillText(segments[i].label, radius - 10, 0); ctx.restore(); } }
-
-function spinWheel() { if (spinsToday >= spinLimit) { alert("Spin limit reached for today!"); return; }
-
-spinsToday++; localStorage.setItem("spinsToday", spinsToday);
-
-const spinSound = new Audio("spin.mp3"); spinSound.play();
-
-const randomIndex = Math.floor(Math.random() * segments.length); const reward = segments[randomIndex]; coins += reward.value; localStorage.setItem("coins", coins);
-
-showResult(reward); updateLeaderboard(username, coins); sendTelegramAlert(reward.label); }
-
-function showResult(reward) { const resultText = document.getElementById("resultText"); resultText.textContent = You won: ${reward.label}; const winSound = new Audio("win.mp3"); winSound.play(); launchConfetti(); }
-
-function launchConfetti() { // Simulate confetti console.log("Confetti animation"); }
-
-function sendTelegramAlert(msg) { const text = User: ${username} won ${msg}; const url = https://api.telegram.org/bot${telegramBotToken}/sendMessage?chat_id=${telegramChatId}&text=${encodeURIComponent(text)}; fetch(url); }
-
-function updateLeaderboard(name, points) { let leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || []; leaderboard.push({ name, points }); leaderboard.sort((a, b) => b.points - a.points); leaderboard = leaderboard.slice(0, 10); localStorage.setItem("leaderboard", JSON.stringify(leaderboard)); renderLeaderboard(leaderboard); }
-
-function renderLeaderboard(list) { const ul = document.getElementById("leaderboard"); ul.innerHTML = ""; list.forEach((entry) => { const li = document.createElement("li"); li.textContent = ${entry.name} - ${entry.points} Coins; ul.appendChild(li); }); }
-
-function toggleDarkMode() { document.body.classList.toggle("dark-mode"); }
-
-function toggleSound() { const mute = localStorage.getItem("mute") === "true"; localStorage.setItem("mute", !mute); }
-
-drawWheel(); renderLeaderboard(JSON.parse(localStorage.getItem("leaderboard")) || []);
-
+function toggleDarkMode() {
+  document.body.classList.toggle("dark-mode");
+}
