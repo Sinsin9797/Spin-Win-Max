@@ -1,58 +1,103 @@
-const canvas = document.getElementById("wheelCanvas");
-const ctx = canvas.getContext("2d");
-const coinsEl = document.getElementById("coins");
-const rewardBox = document.getElementById("reward");
+let segments = [
+  { label: "10 Coins", value: 10 },
+  { label: "Try Again", value: 0 },
+  { label: "50 Coins", value: 50 },
+  { label: "100 Coins", value: 100 },
+  { label: "1 Spin Extra", value: "spin" },
+  { label: "500 Coins", value: 500 }
+];
 
+let currentAngle = 0;
+let spinning = false;
+let username = "";
 let coins = 0;
-let isMuted = false;
-let segments = ["10 Coins", "20 Coins", "Try Again", "50 Coins", "100 Coins"];
-let colors = ["#f44336", "#e91e63", "#9c27b0", "#2196f3", "#4caf50"];
+let spinsLeft = 5;
+
+const canvas = document.getElementById("wheel");
+const ctx = canvas.getContext("2d");
+const spinBtn = document.getElementById("spinBtn");
+const resultDiv = document.getElementById("result");
+const userInput = document.getElementById("username");
+const coinsDisplay = document.getElementById("coinsDisplay");
+const spinLimitDisplay = document.getElementById("spinLimitDisplay");
+const leaderboardList = document.getElementById("leaderboardList");
 
 function drawWheel() {
-  let angle = (2 * Math.PI) / segments.length;
+  let anglePerSegment = (2 * Math.PI) / segments.length;
   for (let i = 0; i < segments.length; i++) {
+    let angle = i * anglePerSegment;
     ctx.beginPath();
-    ctx.moveTo(150, 150);
-    ctx.fillStyle = colors[i];
-    ctx.arc(150, 150, 150, i * angle, (i + 1) * angle);
-    ctx.lineTo(150, 150);
+    ctx.moveTo(250, 250);
+    ctx.arc(250, 250, 200, angle, angle + anglePerSegment);
+    ctx.fillStyle = i % 2 === 0 ? "#FFB347" : "#87CEEB";
     ctx.fill();
-
-    ctx.save();
-    ctx.translate(150, 150);
-    ctx.rotate(i * angle + angle / 2);
-    ctx.fillStyle = "#fff";
-    ctx.font = "bold 14px Arial";
-    ctx.textAlign = "right";
-    ctx.fillText(segments[i], 140, 10);
-    ctx.restore();
-  }
-}
-drawWheel();
-
-function spin() {
-  let winIndex = Math.floor(Math.random() * segments.length);
-  let reward = segments[winIndex];
-
-  if (reward.includes("Coins")) {
-    let num = parseInt(reward.split(" ")[0]);
-    coins += num;
-    coinsEl.textContent = coins;
-    rewardBox.textContent = `You won ${num} coins!`;
-  } else {
-    rewardBox.textContent = "Try Again!";
-  }
-
-  if (!isMuted) {
-    let audio = new Audio("https://www.soundjay.com/buttons/sounds/button-3.mp3");
-    audio.play();
+    ctx.stroke();
+    ctx.fillStyle = "#000";
+    ctx.font = "16px Arial";
+    ctx.fillText(
+      segments[i].label,
+      250 + 150 * Math.cos(angle + anglePerSegment / 2),
+      250 + 150 * Math.sin(angle + anglePerSegment / 2)
+    );
   }
 }
 
-function toggleMute() {
-  isMuted = !isMuted;
+function spinWheel() {
+  if (spinning || spinsLeft <= 0) return;
+
+  spinning = true;
+  let randomDeg = Math.floor(Math.random() * 360 + 360 * 5);
+  let resultIndex = Math.floor(((360 - (randomDeg % 360)) % 360) / (360 / segments.length));
+  let result = segments[resultIndex];
+
+  currentAngle += randomDeg;
+  canvas.style.transform = `rotate(${currentAngle}deg)`;
+
+  setTimeout(() => {
+    resultDiv.innerText = `You won: ${result.label}`;
+    if (typeof result.value === "number") {
+      coins += result.value;
+    } else if (result.value === "spin") {
+      spinsLeft++;
+    }
+
+    spinsLeft--;
+    updateDisplays();
+    spinning = false;
+  }, 4000);
+}
+
+function updateDisplays() {
+  coinsDisplay.innerText = `Coins: ${coins}`;
+  spinLimitDisplay.innerText = `Spins Left: ${spinsLeft}`;
+}
+
+function saveUsername() {
+  username = userInput.value;
+  alert(`Welcome, ${username}!`);
+  updateDisplays();
 }
 
 function toggleDarkMode() {
   document.body.classList.toggle("dark-mode");
 }
+
+function playSound() {
+  let audio = new Audio("spin.mp3");
+  audio.play();
+}
+
+function addToLeaderboard() {
+  let li = document.createElement("li");
+  li.innerText = `${username} - ${coins} Coins`;
+  leaderboardList.appendChild(li);
+}
+
+spinBtn.addEventListener("click", () => {
+  playSound();
+  spinWheel();
+});
+
+document.getElementById("setUsernameBtn").addEventListener("click", saveUsername);
+document.getElementById("darkModeBtn").addEventListener("click", toggleDarkMode);
+document.getElementById("leaderboardBtn").addEventListener("click", addToLeaderboard);
