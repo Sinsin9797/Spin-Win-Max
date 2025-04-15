@@ -1,34 +1,29 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Spin & Win</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Spin Wheel Game</title>
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
   <div class="container">
-    <h1>Spin & Win Game</h1>
-    <input type="text" id="usernameInput" placeholder="Enter Username" />
-    <canvas id="wheel"></canvas>
+    <h1>Spin & Win</h1>
+    <canvas id="wheel" width="500" height="500"></canvas>
     <button id="spinBtn">SPIN</button>
-    <div id="result"></div>
-    <div id="coinsDisplay">Coins: 0</div>
-    <div id="spinLimitDisplay">Spins Left: 5</div>
-    <div id="referralSection">
-      <input type="text" id="referralInput" placeholder="Referral Code (Optional)" />
-      <button id="applyReferral">Apply</button>
-      <div id="referralStatus"></div>
-    </div>
-    <div id="leaderboard">
-      <h3>Leaderboard</h3>
-      <ul id="leaderboardList"></ul>
-    </div>
-    <div id="telegramJoin">
-      Join our <a href="https://t.me/YourChannel" target="_blank">Telegram Channel</a>
-    </div>
-    <button id="muteBtn">Mute</button>
-    <button id="darkModeBtn">Dark Mode</button>
-  </div><audio id="spinSound" src="spin.mp3" preload="auto"></audio> <audio id="winSound" src="win.mp3" preload="auto"></audio>
+    <p id="result">Result will appear here</p>
 
-  <script src="script.js"></script></body>
+    <input type="text" id="username" placeholder="Enter Name"/>
+    <button id="setUsernameBtn">Set Name</button>
+
+    <p id="coinsDisplay">Coins: 0</p>
+    <p id="spinLimitDisplay">Spins Left: 5</p>
+
+    <button id="darkModeBtn">Toggle Dark Mode</button>
+    <button id="leaderboardBtn">Save to Leaderboard</button>
+    <ul id="leaderboardList"></ul>
+  </div>
+
+  <script src="script.js"></script>
+</body>
 </html>
