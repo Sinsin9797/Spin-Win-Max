@@ -1,54 +1,32 @@
-<!DOCTYPE html><html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <title>Spin Wheel</title>
-  <style>
-    canvas {
-      display: block;
-      margin: auto;
-      border: 5px solid #000;
-      border-radius: 50%;
-      background: #fff;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Spin & Win</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h2 style="text-align:center">Spin & Win</h2>
-  <canvas id="wheelCanvas" width="300" height="300"></canvas>
-  <div style="text-align:center; margin-top:10px;">
-    <button onclick="spin()">SPIN</button>
-    <p id="result"></p>
-  </div>  <script>
-    const canvas = document.getElementById("wheelCanvas");
-    const ctx = canvas.getContext("2d");
-    const segments = ["10", "20", "Try", "50", "100", "Better"];
-    const colors = ["#f00", "#0f0", "#00f", "#ff0", "#0ff", "#f0f"];
+  <div class="container">
+    <h1>Spin & Win Game</h1>
+    <input type="text" id="usernameInput" placeholder="Enter Username" />
+    <canvas id="wheel"></canvas>
+    <button id="spinBtn">SPIN</button>
+    <div id="result"></div>
+    <div id="coinsDisplay">Coins: 0</div>
+    <div id="spinLimitDisplay">Spins Left: 5</div>
+    <div id="referralSection">
+      <input type="text" id="referralInput" placeholder="Referral Code (Optional)" />
+      <button id="applyReferral">Apply</button>
+      <div id="referralStatus"></div>
+    </div>
+    <button id="muteBtn">Mute</button>
+    <button id="darkModeBtn">Dark Mode</button>
+  </div>
 
-    function drawWheel() {
-      const angle = 2 * Math.PI / segments.length;
-      for (let i = 0; i < segments.length; i++) {
-        ctx.beginPath();
-        ctx.moveTo(150, 150);
-        ctx.fillStyle = colors[i];
-        ctx.arc(150, 150, 150, i * angle, (i + 1) * angle);
-        ctx.lineTo(150, 150);
-        ctx.fill();
+  <audio id="spinSound" src="spin.mp3" preload="auto"></audio>
+  <audio id="winSound" src="win.mp3" preload="auto"></audio>
 
-        ctx.save();
-        ctx.translate(150, 150);
-        ctx.rotate(i * angle + angle / 2);
-        ctx.fillStyle = "#000";
-        ctx.font = "bold 16px Arial";
-        ctx.textAlign = "right";
-        ctx.fillText(segments[i], 140, 10);
-        ctx.restore();
-      }
-    }
-
-    drawWheel();
-
-    function spin() {
-      const result = segments[Math.floor(Math.random() * segments.length)];
-      document.getElementById("result").innerText = "You got: " + result;
-    }
-  </script></body>
+  <script src="script.js"></script>
+</body>
 </html>
