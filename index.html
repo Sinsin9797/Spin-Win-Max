@@ -3,27 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Spin Wheel Game</title>
+  <title>Spin & Win</title>
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
   <div class="container">
     <h1>Spin & Win</h1>
-    <canvas id="wheel" width="500" height="500"></canvas>
-    <button id="spinBtn">SPIN</button>
-    <p id="result">Result will appear here</p>
-
-    <input type="text" id="username" placeholder="Enter Name"/>
-    <button id="setUsernameBtn">Set Name</button>
-
-    <p id="coinsDisplay">Coins: 0</p>
-    <p id="spinLimitDisplay">Spins Left: 5</p>
-
-    <button id="darkModeBtn">Toggle Dark Mode</button>
-    <button id="leaderboardBtn">Save to Leaderboard</button>
-    <ul id="leaderboardList"></ul>
+    <input type="text" id="username" placeholder="Enter your name"/>
+    <button id="spinBtn">Spin</button>
+    <canvas id="wheel" width="300" height="300"></canvas>
+    <p id="result"></p>
+    <button id="toggleSound">Mute</button>
+    <button id="toggleTheme">Dark Mode</button>
   </div>
-
+  <audio id="spinSound" src="spin.mp3"></audio>
+  <audio id="winSound" src="win.mp3"></audio>
   <script src="script.js"></script>
 </body>
 </html>
