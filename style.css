@@ -1,80 +1,21 @@
 body {
   font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background: #f0f0f0;
-  color: #333;
-  transition: background 0.3s, color 0.3s;
-}
-
-.container {
+  background-color: #fff;
+  color: #000;
   text-align: center;
+  transition: 0.3s ease;
+}
+.container {
   padding: 20px;
 }
-
-canvas {
-  margin: 20px auto;
-  display: block;
-  background: #fff;
-  border-radius: 50%;
-  box-shadow: 0 0 10px rgba(0,0,0,0.3);
-}
-
-input[type="text"] {
-  padding: 10px;
-  margin: 10px;
-  width: 200px;
-}
-
 button {
-  padding: 10px 20px;
   margin: 10px;
-  cursor: pointer;
-  border: none;
-  border-radius: 5px;
-  background: #007bff;
-  color: #fff;
-  transition: background 0.3s;
+  padding: 10px 20px;
 }
-
-button:hover {
-  background: #0056b3;
-}
-
-#result, #coinsDisplay, #spinLimitDisplay, #referralStatus {
-  margin-top: 10px;
-  font-weight: bold;
-}
-
-#leaderboard {
-  margin-top: 20px;
-}
-
-#leaderboardList {
-  list-style-type: none;
-  padding: 0;
-}
-
-#leaderboardList li {
-  padding: 5px;
-  background: #e0e0e0;
-  margin: 2px 0;
-  border-radius: 5px;
-}
-
 .dark-mode {
-  background: #121212;
-  color: #f0f0f0;
+  background-color: #111;
+  color: #fff;
 }
-
-.dark-mode canvas {
-  background: #333;
+canvas {
+  transition: transform 4s cubic-bezier(0.33, 1, 0.68, 1);
 }
-
-.dark-mode button {
-  background: #444;
-}
-
-.dark-mode button:hover {
-  background: #666;
-  }
