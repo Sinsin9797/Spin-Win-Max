@@ -1,102 +1,91 @@
-let segments = [
-  { label: "10 Coins", value: 10 },
-  { label: "Try Again", value: 0 },
-  { label: "50 Coins", value: 50 },
-  { label: "100 Coins", value: 100 },
-  { label: "1 Extra Spin", value: "spin" },
-  { label: "500 Coins", value: 500 }
-];
-
-let currentAngle = 0;
-let spinning = false;
-let username = "";
-let coins = 0;
-let spinsLeft = 5;
-
+const spinBtn = document.getElementById("spinBtn");
 const canvas = document.getElementById("wheel");
 const ctx = canvas.getContext("2d");
-const spinBtn = document.getElementById("spinBtn");
-const resultDiv = document.getElementById("result");
-const userInput = document.getElementById("username");
-const coinsDisplay = document.getElementById("coinsDisplay");
-const spinLimitDisplay = document.getElementById("spinLimitDisplay");
-const leaderboardList = document.getElementById("leaderboardList");
+const resultText = document.getElementById("result");
+const usernameInput = document.getElementById("username");
+const toggleThemeBtn = document.getElementById("toggleTheme");
+const toggleSoundBtn = document.getElementById("toggleSound");
+const spinSound = document.getElementById("spinSound");
+const winSound = document.getElementById("winSound");
+
+let isMuted = false;
+let angle = 0;
+let spinning = false;
+
+const segments = [
+  "10 Coins", "Try Again", "20 Coins", "Try Again",
+  "50 Coins", "Try Again", "5 Coins", "100 Coins"
+];
+const colors = ["#f44336", "#4caf50", "#2196f3", "#ff9800", "#9c27b0", "#03a9f4", "#e91e63", "#8bc34a"];
 
 function drawWheel() {
-  let anglePerSegment = (2 * Math.PI) / segments.length;
+  const radius = canvas.width / 2;
+  const anglePerSegment = (2 * Math.PI) / segments.length;
+
   for (let i = 0; i < segments.length; i++) {
-    let angle = i * anglePerSegment;
+    const startAngle = anglePerSegment * i + angle;
+    const endAngle = startAngle + anglePerSegment;
+
     ctx.beginPath();
-    ctx.moveTo(250, 250);
-    ctx.arc(250, 250, 200, angle, angle + anglePerSegment);
-    ctx.fillStyle = i % 2 === 0 ? "#FFD700" : "#87CEEB";
+    ctx.fillStyle = colors[i % colors.length];
+    ctx.moveTo(radius, radius);
+    ctx.arc(radius, radius, radius, startAngle, endAngle);
     ctx.fill();
-    ctx.stroke();
-    ctx.fillStyle = "#000";
-    ctx.font = "16px Arial";
-    ctx.fillText(
-      segments[i].label,
-      250 + 120 * Math.cos(angle + anglePerSegment / 2),
-      250 + 120 * Math.sin(angle + anglePerSegment / 2)
-    );
+
+    ctx.save();
+    ctx.translate(radius, radius);
+    ctx.rotate(startAngle + anglePerSegment / 2);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#fff";
+    ctx.font = "14px Arial";
+    ctx.fillText(segments[i], radius - 10, 5);
+    ctx.restore();
   }
 }
-drawWheel();
 
 function spinWheel() {
-  if (spinning || spinsLeft <= 0) return;
+  if (spinning) return;
+  if (!usernameInput.value.trim()) {
+    alert("Enter your name first!");
+    return;
+  }
 
   spinning = true;
-  let randomDeg = Math.floor(Math.random() * 360 + 360 * 5);
-  let resultIndex = Math.floor(((360 - (randomDeg % 360)) % 360) / (360 / segments.length));
-  let result = segments[resultIndex];
+  if (!isMuted) spinSound.play();
 
-  currentAngle += randomDeg;
-  canvas.style.transform = `rotate(${currentAngle}deg)`;
+  let spinAngle = Math.random() * 360 + 720; // 2+ rotations
+  let duration = 3000;
+  let start = performance.now();
 
-  setTimeout(() => {
-    resultDiv.innerText = `You won: ${result.label}`;
-    if (typeof result.value === "number") {
-      coins += result.value;
-    } else if (result.value === "spin") {
-      spinsLeft++;
+  function animate(time) {
+    let elapsed = time - start;
+    let progress = Math.min(elapsed / duration, 1);
+    angle = (spinAngle * progress * Math.PI) / 180;
+    drawWheel();
+
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      spinning = false;
+      let winningIndex = segments.length - Math.floor(((angle * 180) / Math.PI) % 360 / (360 / segments.length)) - 1;
+      let reward = segments[winningIndex];
+      resultText.textContent = `${usernameInput.value} won: ${reward}`;
+      if (!isMuted) winSound.play();
+
+      // Telegram or Google Sheets logging code goes here
     }
-    spinsLeft--;
-    updateDisplays();
-    spinning = false;
-  }, 4000);
+  }
+
+  requestAnimationFrame(animate);
 }
 
-function updateDisplays() {
-  coinsDisplay.innerText = `Coins: ${coins}`;
-  spinLimitDisplay.innerText = `Spins Left: ${spinsLeft}`;
-}
-
-function saveUsername() {
-  username = userInput.value;
-  alert(`Welcome, ${username}!`);
-  updateDisplays();
-}
-
-function toggleDarkMode() {
-  document.body.classList.toggle("dark-mode");
-}
-
-function playSound() {
-  let audio = new Audio("spin.mp3");
-  audio.play();
-}
-
-function addToLeaderboard() {
-  let li = document.createElement("li");
-  li.innerText = `${username} - ${coins} Coins`;
-  leaderboardList.appendChild(li);
-}
-
-spinBtn.addEventListener("click", () => {
-  playSound();
-  spinWheel();
+spinBtn.addEventListener("click", spinWheel);
+toggleThemeBtn.addEventListener("click", () => {
+  document.body.classList.toggle("dark");
 });
-document.getElementById("setUsernameBtn").addEventListener("click", saveUsername);
-document.getElementById("darkModeBtn").addEventListener("click", toggleDarkMode);
-document.getElementById("leaderboardBtn").addEventListener("click", addToLeaderboard);
+toggleSoundBtn.addEventListener("click", () => {
+  isMuted = !isMuted;
+  toggleSoundBtn.textContent = isMuted ? "Unmute" : "Mute";
+});
+
+drawWheel();
