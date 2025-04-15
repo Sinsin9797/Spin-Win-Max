@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Spin & Win – Final Version</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Spin & Win Game</h1>
+    <p id="joinTelegram">Join our Telegram Channel: <a href="https://t.me/yourchannel" target="_blank">@yourchannel</a></p>
+    
+    <input type="text" id="username" placeholder="Enter your name" />
+    <button id="logoutBtn">Logout</button>
+
+    <canvas id="wheel" width="300" height="300"></canvas>
+
+    <div class="controls">
+      <button id="spinBtn">SPIN</button>
+      <button id="claimBtn">Claim Reward</button>
+      <button id="withdrawBtn">Withdraw</button>
+    </div>
+
+    <p id="result"></p>
+    <p>Total Coins: <span id="coinDisplay">0</span></p>
+
+    <div class="footer-buttons">
+      <button id="muteToggle">Mute</button>
+      <button id="toggleDarkMode">Dark Mode</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/confetti-js"></script>
+  <script src="script.js"></script>
+</body>
+        </html>
