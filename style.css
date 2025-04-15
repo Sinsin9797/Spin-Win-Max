@@ -1,27 +1,80 @@
-<!DOCTYPE html><html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Spin & Win</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div class="container">
-    <h1>Spin & Win Game</h1>
-    <input type="text" id="usernameInput" placeholder="Enter Username" />
-    <canvas id="wheel"></canvas>
-    <button id="spinBtn">SPIN</button>
-    <div id="result"></div>
-    <div id="coinsDisplay">Coins: 0</div>
-    <div id="spinLimitDisplay">Spins Left: 5</div>
-    <div id="referralSection">
-      <input type="text" id="referralInput" placeholder="Referral Code (Optional)" />
-      <button id="applyReferral">Apply</button>
-      <div id="referralStatus"></div>
-    </div>
-    <button id="muteBtn">Mute</button>
-    <button id="darkModeBtn">Dark Mode</button>
-  </div><audio id="spinSound" src="spin.mp3" preload="auto"></audio> <audio id="winSound" src="win.mp3" preload="auto"></audio>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f0f0f0;
+  color: #333;
+  transition: background 0.3s, color 0.3s;
+}
 
-  <script src="script.js"></script></body>
-</html>
+.container {
+  text-align: center;
+  padding: 20px;
+}
+
+canvas {
+  margin: 20px auto;
+  display: block;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+input[type="text"] {
+  padding: 10px;
+  margin: 10px;
+  width: 200px;
+}
+
+button {
+  padding: 10px 20px;
+  margin: 10px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  background: #007bff;
+  color: #fff;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background: #0056b3;
+}
+
+#result, #coinsDisplay, #spinLimitDisplay, #referralStatus {
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+#leaderboard {
+  margin-top: 20px;
+}
+
+#leaderboardList {
+  list-style-type: none;
+  padding: 0;
+}
+
+#leaderboardList li {
+  padding: 5px;
+  background: #e0e0e0;
+  margin: 2px 0;
+  border-radius: 5px;
+}
+
+.dark-mode {
+  background: #121212;
+  color: #f0f0f0;
+}
+
+.dark-mode canvas {
+  background: #333;
+}
+
+.dark-mode button {
+  background: #444;
+}
+
+.dark-mode button:hover {
+  background: #666;
+  }
