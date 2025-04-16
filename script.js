@@ -1,91 +1,164 @@
-const spinBtn = document.getElementById("spinBtn");
-const canvas = document.getElementById("wheel");
+const segments = [
+  { label: "10 Coins", value: 10 },
+  { label: "5 Coins", value: 5 },
+  { label: "20 Coins", value: 20 },
+  { label: "Try Again", value: 0 },
+  { label: "50 Coins", value: 50 },
+  { label: "No Luck", value: 0 },
+];
+
+let spinAngle = 0;
+let spinning = false;
+let spinsLeft = 5;
+let coins = 0;
+let muted = false;
+let username = localStorage.getItem("username") || "";
+const telegramBotToken = "YOUR_TELEGRAM_BOT_TOKEN";
+const telegramChatID = "YOUR_TELEGRAM_CHAT_ID";
+
+const canvas = document.getElementById("wheelcanvas");
 const ctx = canvas.getContext("2d");
-const resultText = document.getElementById("result");
-const usernameInput = document.getElementById("username");
-const toggleThemeBtn = document.getElementById("toggleTheme");
-const toggleSoundBtn = document.getElementById("toggleSound");
 const spinSound = document.getElementById("spinSound");
 const winSound = document.getElementById("winSound");
 
-let isMuted = false;
-let angle = 0;
-let spinning = false;
+document.getElementById("spinCount").innerText = `Spins left: ${spinsLeft}`;
+document.getElementById("userCoins").innerText = `Coins: ${coins}`;
 
-const segments = [
-  "10 Coins", "Try Again", "20 Coins", "Try Again",
-  "50 Coins", "Try Again", "5 Coins", "100 Coins"
-];
-const colors = ["#f44336", "#4caf50", "#2196f3", "#ff9800", "#9c27b0", "#03a9f4", "#e91e63", "#8bc34a"];
+function saveUsername() {
+  const input = document.getElementById("username");
+  username = input.value.trim();
+  if (username) {
+    localStorage.setItem("username", username);
+    alert(`Welcome, ${username}!`);
+  }
+}
 
 function drawWheel() {
   const radius = canvas.width / 2;
-  const anglePerSegment = (2 * Math.PI) / segments.length;
-
+  const angleStep = (2 * Math.PI) / segments.length;
   for (let i = 0; i < segments.length; i++) {
-    const startAngle = anglePerSegment * i + angle;
-    const endAngle = startAngle + anglePerSegment;
-
+    const angle = angleStep * i;
     ctx.beginPath();
-    ctx.fillStyle = colors[i % colors.length];
     ctx.moveTo(radius, radius);
-    ctx.arc(radius, radius, radius, startAngle, endAngle);
+    ctx.arc(radius, radius, radius, angle, angle + angleStep);
+    ctx.fillStyle = i % 2 === 0 ? "#ffcc00" : "#ffa500";
     ctx.fill();
-
+    ctx.fillStyle = "#000";
+    ctx.font = "14px Arial";
+    ctx.textAlign = "center";
     ctx.save();
     ctx.translate(radius, radius);
-    ctx.rotate(startAngle + anglePerSegment / 2);
-    ctx.textAlign = "right";
-    ctx.fillStyle = "#fff";
-    ctx.font = "14px Arial";
-    ctx.fillText(segments[i], radius - 10, 5);
+    ctx.rotate(angle + angleStep / 2);
+    ctx.fillText(segments[i].label, radius - 50, 5);
     ctx.restore();
   }
 }
 
 function spinWheel() {
-  if (spinning) return;
-  if (!usernameInput.value.trim()) {
-    alert("Enter your name first!");
-    return;
-  }
-
+  if (spinning || spinsLeft <= 0 || !username) return;
   spinning = true;
-  if (!isMuted) spinSound.play();
+  spinsLeft--;
+  updateSpinCount();
 
-  let spinAngle = Math.random() * 360 + 720; // 2+ rotations
-  let duration = 3000;
-  let start = performance.now();
+  if (!muted) spinSound.play();
 
-  function animate(time) {
-    let elapsed = time - start;
-    let progress = Math.min(elapsed / duration, 1);
-    angle = (spinAngle * progress * Math.PI) / 180;
-    drawWheel();
-
-    if (progress < 1) {
-      requestAnimationFrame(animate);
-    } else {
-      spinning = false;
-      let winningIndex = segments.length - Math.floor(((angle * 180) / Math.PI) % 360 / (360 / segments.length)) - 1;
-      let reward = segments[winningIndex];
-      resultText.textContent = `${usernameInput.value} won: ${reward}`;
-      if (!isMuted) winSound.play();
-
-      // Telegram or Google Sheets logging code goes here
-    }
-  }
-
-  requestAnimationFrame(animate);
+  const randomSpin = Math.floor(Math.random() * segments.length);
+  const result = segments[randomSpin];
+  spinAngle += 360 * 5 + (randomSpin * (360 / segments.length));
+  animateSpin(spinAngle, () => {
+    showResult(result);
+    spinning = false;
+  });
 }
 
-spinBtn.addEventListener("click", spinWheel);
-toggleThemeBtn.addEventListener("click", () => {
-  document.body.classList.toggle("dark");
-});
-toggleSoundBtn.addEventListener("click", () => {
-  isMuted = !isMuted;
-  toggleSoundBtn.textContent = isMuted ? "Unmute" : "Mute";
-});
+function animateSpin(finalAngle, callback) {
+  let current = 0;
+  const totalFrames = 60;
+  const initialAngle = spinAngle - (360 * 5);
+  const animate = () => {
+    current++;
+    const angle = easeOut(current, initialAngle, finalAngle - initialAngle, totalFrames);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.rotate((angle * Math.PI) / 180);
+    ctx.translate(-canvas.width / 2, -canvas.height / 2);
+    drawWheel();
+    ctx.restore();
+    if (current < totalFrames) {
+      requestAnimationFrame(animate);
+    } else {
+      callback();
+    }
+  };
+  animate();
+}
+
+function easeOut(t, b, c, d) {
+  t /= d;
+  return -c * t*(t-2) + b;
+}
+
+function showResult(result) {
+  const resEl = document.getElementById("result");
+  if (result.value > 0) {
+    resEl.innerText = `Congrats! You won ${result.label}`;
+    coins += result.value;
+    document.getElementById("userCoins").innerText = `Coins: ${coins}`;
+    if (!muted) winSound.play();
+    launchConfetti();
+  } else {
+    resEl.innerText = "Better luck next time!";
+  }
+
+  sendTelegramAlert(result.label);
+  updateLeaderboard();
+}
+
+function updateSpinCount() {
+  document.getElementById("spinCount").innerText = `Spins left: ${spinsLeft}`;
+}
+
+function toggleMute() {
+  muted = !muted;
+}
+
+function toggleDarkMode() {
+  document.body.classList.toggle("dark-mode");
+}
+
+function sendTelegramAlert(prize) {
+  if (!telegramBotToken || !telegramChatID) return;
+  fetch(`https://api.telegram.org/bot${telegramBotToken}/sendMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      chat_id: telegramChatID,
+      text: `🎉 ${username} just won: ${prize} in Spin & Win!`,
+    }),
+  });
+}
+
+function withdrawCoins() {
+  const amount = parseInt(document.getElementById("withdrawAmount").value);
+  if (isNaN(amount) || amount <= 0) return alert("Enter valid amount");
+  if (amount > coins) return alert("Not enough coins");
+  if (amount < 50) return alert("Minimum 50 Coins to withdraw");
+  coins -= amount;
+  alert("Withdrawal requested!");
+  document.getElementById("userCoins").innerText = `Coins: ${coins}`;
+  sendTelegramAlert(`Withdrawal request of ${amount} coins by ${username}`);
+}
+
+function updateLeaderboard() {
+  const list = document.getElementById("leaderboardList");
+  const li = document.createElement("li");
+  li.innerText = `${username} - ${coins} Coins`;
+  list.appendChild(li);
+}
+
+function launchConfetti() {
+  // Add confetti canvas effect here if using external library
+}
 
 drawWheel();
