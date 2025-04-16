@@ -3,21 +3,53 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Spin & Win</title>
-  <link rel="stylesheet" href="style.css"/>
+  <title>Spin & Win Game</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
-    <h1>Spin & Win</h1>
-    <input type="text" id="username" placeholder="Enter your name"/>
-    <button id="spinBtn">Spin</button>
-    <canvas id="wheel" width="300" height="300"></canvas>
-    <p id="result"></p>
-    <button id="toggleSound">Mute</button>
-    <button id="toggleTheme">Dark Mode</button>
+    <h1>Spin & Win Game</h1>
+
+    <div class="user-info">
+      <input type="text" id="username" placeholder="Enter your name" />
+      <button onclick="saveUsername()">Save</button>
+    </div>
+
+    <div class="wheel-container">
+      <canvas id="wheelcanvas" width="400" height="400"></canvas>
+      <button id="spin" onclick="spinWheel()">SPIN</button>
+    </div>
+
+    <div class="controls">
+      <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
+      <button onclick="toggleMute()">Mute/Unmute</button>
+      <p id="spinCount">Spins left: 0</p>
+      <p id="userCoins">Coins: 0</p>
+    </div>
+
+    <div class="result" id="result"></div>
+
+    <div id="confetti-canvas"></div>
+
+    <div class="telegram">
+      <p>Join our Telegram channel for daily rewards!</p>
+      <a href="https://t.me/yourchannel" target="_blank">Join Now</a>
+    </div>
+
+    <div class="withdraw">
+      <input type="number" id="withdrawAmount" placeholder="Withdraw Coins" />
+      <button onclick="withdrawCoins()">Withdraw</button>
+    </div>
+
+    <div class="leaderboard">
+      <h2>Leaderboard</h2>
+      <ul id="leaderboardList"></ul>
+    </div>
   </div>
-  <audio id="spinSound" src="spin.mp3"></audio>
-  <audio id="winSound" src="win.mp3"></audio>
+
+  <audio id="spinSound" src="sounds/spin.mp3"></audio>
+  <audio id="winSound" src="sounds/win.mp3"></audio>
+
   <script src="script.js"></script>
 </body>
-</html>
+    </html>
